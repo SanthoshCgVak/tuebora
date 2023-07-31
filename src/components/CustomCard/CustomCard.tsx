@@ -5,40 +5,9 @@ import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Unstable_Grid2";
 
-interface SchemaData {
-  name?: string;
-  key?: string;
-  type?: string;
-  cardView?: boolean;
-  gridView?: boolean;
-  search?: boolean;
-  sort?: boolean;
-}
-interface CompanyData {
-  name: string;
-  noOfEmployees: string;
-  industry: string;
-  city: string;
-  state: string;
-  country: string;
-  pincode: string;
-  address: string;
-}
-
-interface UserData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  department: string;
-  location: string;
-  employmentType: string;
-  age: string;
-  jobTitle: string;
-}
-
 type props = {
-  cardData?: CompanyData[] | UserData[];
-  schemaData?: SchemaData[];
+  cardData?: any;
+  schemaData?: any;
 };
 
 const CustomCard: FC<props> = ({ schemaData, cardData }): ReactElement => {
@@ -49,11 +18,11 @@ const CustomCard: FC<props> = ({ schemaData, cardData }): ReactElement => {
         spacing={2}
         style={{ marginLeft: "2rem", marginRight: "2rem" }}
       >
-        {cardData?.map((card: CompanyData | UserData | any) => (
+        {cardData?.map((card: any) => (
           <Grid xs={6} md={4}>
             <Card>
               {schemaData?.map(
-                (schema: SchemaData | any) =>
+                (schema: any) =>
                   schema?.cardView && (
                     <CardContent>
                       <Typography sx={{ fontSize: 14 }} variant="h5">
