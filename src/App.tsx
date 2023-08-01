@@ -1,26 +1,49 @@
 import { useState, useEffect } from "react";
 import OrganizationView from "./views/OrganizationView/OrganizationView";
 import { Box, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
-import CompanySchema from "./data/SampleCompanySchema.json";
-import UserSchema from "./data/SampleUserSchema.json";
-import CompanyData from "./data/SampleCompanyData.json";
-import UserData from "./data/SampleUserDataExamples.json";
 import "./App.scss";
 
 function App() {
   const [data, setData] = useState<any>([]);
-  const [schema, setSchema] = useState<string>("Company");
-  const [schemaData, setSchemaData] = useState<any>();
+  const [schema, setSchema] = useState<string>("");
+  const [dropdownValues, setDropdownValues] = useState<any>([]);
 
+  // Used to get all the Json files from the data folder
   useEffect(() => {
-    if (schema === "Company") {
-      setSchemaData(CompanySchema?.attributes);
-      setData(CompanyData);
-    } else {
-      setSchemaData(UserSchema?.attributes);
-      setData(UserData);
+    const fetchData = async () => {
+      const dataFiles = await importAll(
+        require.context("./data", false, /\.json$/)
+      );
+      groupDataFiles(dataFiles);
+    };
+    fetchData();
+  }, []);
+
+  // Function to group data files based on the number in the file name
+  const groupDataFiles = (files: any) => {
+    const groupedData: any = {};
+    const dropdownValues = [];
+    for (const [key, value] of Object.entries<any>(files)) {
+      if (key.includes("Schema")) {
+        const fileName = `./${value?.name}Data.json`;
+        dropdownValues.push(value?.name);
+        groupedData[value?.name] = {
+          schema: value?.attributes,
+          data: files[fileName],
+        };
+      }
     }
-  }, [schema]);
+    setDropdownValues(dropdownValues);
+    setData(groupedData);
+    setSchema(dropdownValues[0]);
+  };
+
+  // Function to import all files from the given context
+  const importAll = (r: any) => {
+    let files: any = {};
+    r.keys().forEach((key: any) => (files[key] = r(key)));
+    return files;
+  };
 
   return (
     <>
@@ -37,13 +60,17 @@ function App() {
               value={schema}
               onChange={(e) => setSchema(e.target.value)}
             >
-              <MenuItem value={"Company"}>Company</MenuItem>
-              <MenuItem value={"User"}>User</MenuItem>
+              {dropdownValues?.map((dropdown: any) => (
+                <MenuItem value={dropdown}>{dropdown}</MenuItem>
+              ))}
             </Select>
           </FormControl>
         </Box>
       </div>
-      <OrganizationView viewData={data} schemaData={schemaData} />
+      <OrganizationView
+        viewData={data?.[schema]?.data}
+        schemaData={data?.[schema]?.schema}
+      />
     </>
   );
 }
